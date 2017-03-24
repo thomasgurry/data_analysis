@@ -10,6 +10,13 @@ import warnings
 
 def jsd(x,y): 
     # Jensen-shannon divergence
+    # NOTE: don't forget to take the square root to make it a distance metric!!
+    #
+    # Inputs: 
+    #        x: [array of floats]
+    #        y: [array of floats]
+    # Returns:
+    #        JSD: [float]
     warnings.filterwarnings("ignore", category = RuntimeWarning)
     x = np.array(x)
     y = np.array(y)
@@ -26,10 +33,10 @@ def FDR_thresholds(q_threshold, N):
     # where c(N) = sum_i 1/i
     #
     # Inputs: 
-    #        q: q-value threshold (e.g. 0.05)
-    #        N: number of tests
+    #        q: q-value threshold (e.g. 0.05) [float]
+    #        N: number of tests [int or float]
     # Returns:
-    #        array of thresholds to be compared against ranked p-values
+    #        FDR_thresholds: array of thresholds to be compared against ranked p-values [array of floats]
     cN = 0
     for i in range(1, N+1):
         cN += 1/float(i)
@@ -40,8 +47,12 @@ def FDR_thresholds(q_threshold, N):
 def corr_ratio(values, category_labels):
     # Computes correlation ratio for a given array of values and category_labels
     # Eqn: eta^2 = (sum_x [N_x * (mean(y_x) - mean(y))^2]) / (sum_x [sum_i [(y_xi - mean(y))^2]])
-    # values: 1D array
-    # category_labels: 1D array
+    # 
+    # Inputs:
+    #        values: [array of floats]
+    #        category_labels: [array of strings or chars]
+    # Returns:
+    #        correlation_ratio: [float]
     category_labels = np.array(category_labels)
     values = np.array(values)
     categories = np.unique(category_labels)
