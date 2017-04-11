@@ -8,6 +8,7 @@ Miscellanous analysis tools and scripts for general purpose data analysis.
 
 import warnings
 import numpy as np
+from numpy.random import RandomState
 
 def jsd(x,y): 
     # Jensen-shannon divergence
@@ -20,6 +21,33 @@ def jsd(x,y):
     d2[np.isnan(d2)] = 0
     d = 0.5*np.sum(d1+d2)
     return d
+
+
+def shannon_diversity(x):
+    # Shannon diversity - takes as input a normalized vector!!!
+    x = np.array(x)
+    sd = 0
+    for i in range(len(x)):
+        if x[i] != 0:
+            sd -= x[i]*np.log(x[i])
+    return sd
+
+
+def rarefaction(M, seed=0):
+    # Rarefy matrix
+    prng = RandomState(seed) # reproducible results
+    noccur = np.sum(M, axis=0) # number of occurrences for each sample
+    nvar = M.shape[0] # number of variables
+    depth = np.min(noccur) # sampling depth
+
+    Mrarefied = np.empty_like(M)
+    for i in range(M.shape[1]): # for each sample
+        p = M[:,i] / float(noccur[i]) # relative frequency / probability
+        choice = prng.choice(nvar, depth, p=p)
+        Mrarefied[:,i] = np.bincount(choice, minlength=nvar)
+    
+    return Mrarefied
+
 
 def FDR_thresholds(q_threshold, N):
     # Benjamini - Hochberg criterion FDR thresholds
