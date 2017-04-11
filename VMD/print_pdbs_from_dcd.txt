@@ -1,0 +1,8 @@
+mol load psf fournacs.psf dcd less_short.dcd
+
+set nf [molinfo top get numframes]
+
+for { set i 0 } {$i < $nf } { incr i } {
+        set sel [atomselect top protein frame $i]
+        $sel writepdb pdb/$i.pdb
+} 
