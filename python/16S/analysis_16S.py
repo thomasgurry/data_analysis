@@ -105,10 +105,10 @@ def collapse_OTU_table_SILVA(OTU_table, taxonomic_level):
     return collapsed_OTU_table
 
 
-def stacked_barplot_RDP_table(OTU_table, taxonomic_level, sampleIDs=0):
+def stacked_barplot_RDP_table(OTU_table, taxonomic_level, sampleIDs=0, sample_labels=0):
     # Returns a stacked barplot of the taxa in an OTU table (at a specified taxonomic level) 
     # for each sample ID, which can be provided in a specific order.  If none are provided, all 
-    # sample IDs in the OTU table will be plotted in the order they appear.
+    # sample IDs in the OTU table will be plotted in the order they appear and labeled as in the table.
     
     # Collapse taxonomies
     otu_table_collapsed = collapse_OTU_table_RDP(OTU_table, taxonomic_level)
@@ -116,7 +116,8 @@ def stacked_barplot_RDP_table(OTU_table, taxonomic_level, sampleIDs=0):
 
     if sampleIDs == 0:
         sampleIDs = otu_table_collapsed.columns.tolist()[1:]
-
+        sample_labels = sampleIDs
+    
     # If phylum, display all, else display top 20
     if taxonomic_level == 'phylum':
         taxa = otu_table_collapsed[taxonomic_level]
@@ -126,6 +127,7 @@ def stacked_barplot_RDP_table(OTU_table, taxonomic_level, sampleIDs=0):
         for i in range(len(all_taxa)):
             taxa_median_abundances.append(np.median(otu_table_collapsed[sampleIDs].ix[i]))
         sorted_inds = np.argsort(taxa_median_abundances)[::-1]
+        otu_table_collapsed = otu_table_collapsed.ix[sorted_inds[:20]].copy()
         taxa = all_taxa[sorted_inds[:20]]
 
     print taxa
@@ -148,18 +150,16 @@ def stacked_barplot_RDP_table(OTU_table, taxonomic_level, sampleIDs=0):
         ax.bar(inds, barplot_tuple, bottom=last_barplot_tuple, color=colorsRGB[i%len(colorsRGB)])
         last_barplot_tuple = [sum(x) for x in zip(last_barplot_tuple, barplot_tuple)]
 
-    if taxonomic_level == 'phylum' or taxonomic_level == 'class':
-        ax.legend(taxa, bbox_to_anchor=(1.35, 1.0))    
-    else:
-        ax.legend(taxa, bbox_to_anchor=(2.0, 1.0))
-    ax.set_xticks([a+0.5 for a in range(len(sampleIDs))])
-    ax.set_xticklabels(sampleIDs, fontsize=12, rotation='vertical')    
+    taxa_names = [taxon.split(';')[-1] for taxon in taxa]
+    ax.legend(taxa_names, bbox_to_anchor=(1.35, 1.0))    
+    ax.set_xticks([a+0.5 for a in range(len(sample_labels))])
+    ax.set_xticklabels(sample_labels, fontsize=12, rotation='vertical')    
     ax.set_ylim([0, 1.0])
     ax.set_ylabel('Relative abundance', fontsize=18)
     return ax
 
 
-def stacked_barplot_SILVA_table(OTU_table, taxonomic_level, sampleIDs=0):
+def stacked_barplot_SILVA_table(OTU_table, taxonomic_level, sampleIDs=0, sample_labels=0):
     # Returns a stacked barplot of the taxa in an OTU table (at a specified taxonomic level) 
     # for each sample ID, which can be provided in a specific order.  If none are provided, all 
     # sample IDs in the OTU table will be plotted in the order they appear.
@@ -170,6 +170,7 @@ def stacked_barplot_SILVA_table(OTU_table, taxonomic_level, sampleIDs=0):
 
     if sampleIDs == 0:
         sampleIDs = otu_table_collapsed.columns.tolist()[1:]
+        sample_labels = sampleIDs
 
     # If phylum, display all, else display top 20
     if taxonomic_level == 'phylum':
@@ -181,8 +182,7 @@ def stacked_barplot_SILVA_table(OTU_table, taxonomic_level, sampleIDs=0):
             taxa_median_abundances.append(np.median(otu_table_collapsed[sampleIDs].ix[i]))
         sorted_inds = np.argsort(taxa_median_abundances)[::-1]
         taxa = all_taxa[sorted_inds[:20]]
-
-    print taxa
+        otu_table_collapsed = otu_table_collapsed.ix[sorted_inds[:20]].copy()
 
     stacked_barplot_dict = {sid: otu_table_collapsed[sid].tolist() for sid in sampleIDs}
 
@@ -202,12 +202,10 @@ def stacked_barplot_SILVA_table(OTU_table, taxonomic_level, sampleIDs=0):
         ax.bar(inds, barplot_tuple, bottom=last_barplot_tuple, color=colorsRGB[i%len(colorsRGB)])
         last_barplot_tuple = [sum(x) for x in zip(last_barplot_tuple, barplot_tuple)]
 
-    if taxonomic_level == 'phylum' or taxonomic_level == 'class':
-        ax.legend(taxa, bbox_to_anchor=(1.35, 1.0))    
-    else:
-        ax.legend(taxa, bbox_to_anchor=(2.0, 1.0))
-    ax.set_xticks([a+0.5 for a in range(len(sampleIDs))])
-    ax.set_xticklabels(sampleIDs, fontsize=12, rotation='vertical')    
+    taxa_names = [taxon.split(';')[-1] for taxon in taxa]
+    ax.legend(taxa_names, bbox_to_anchor=(1.35, 1.0))    
+    ax.set_xticks([a+0.5 for a in range(len(sample_labels))])
+    ax.set_xticklabels(sample_labels, fontsize=12, rotation='vertical')    
     ax.set_ylim([0, 1.0])
     ax.set_ylabel('Relative abundance', fontsize=18)
     return ax
