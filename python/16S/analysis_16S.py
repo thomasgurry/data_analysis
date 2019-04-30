@@ -130,7 +130,7 @@ def stacked_barplot_RDP_table(OTU_table, taxonomic_level, sampleIDs=0, sample_la
         otu_table_collapsed = otu_table_collapsed.ix[sorted_inds[:20]].copy()
         taxa = all_taxa[sorted_inds[:20]]
 
-    print taxa
+    print(taxa)
 
     stacked_barplot_dict = {sid: otu_table_collapsed[sid].tolist() for sid in sampleIDs}
 
